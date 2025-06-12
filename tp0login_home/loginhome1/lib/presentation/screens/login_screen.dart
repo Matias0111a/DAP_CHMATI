@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Estado inicial
   int verification = incorrect;
-  // Sacar dirección del usuario correcto
   String userDirection = '';
   String userName = '';
 
