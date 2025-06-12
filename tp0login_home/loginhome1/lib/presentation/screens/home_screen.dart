@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 class HomeScreen extends StatelessWidget {
   static const String name = 'home';
   const HomeScreen({super.key, required this.userName, required this.direction});
@@ -45,7 +44,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 GoRouter.of(context).push('/esp32');
               },
-              child: const Text('ESP32', style: TextStyle(fontSize: 35, color: Colors.black)),
+              child: const Text('VACIO', style: TextStyle(fontSize: 35, color: Colors.black)),
             ),
               ],
             ),
