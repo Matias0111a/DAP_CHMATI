@@ -7,7 +7,6 @@ final bandasProvider = Provider<List<Banda>>((ref) => bandasList);
 class BandasScreen extends ConsumerWidget {
   static const String name = 'bandas_screen';
   const BandasScreen({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bandas = ref.watch(bandasProvider);
