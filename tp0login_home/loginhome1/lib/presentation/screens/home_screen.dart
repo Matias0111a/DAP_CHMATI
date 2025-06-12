@@ -38,13 +38,13 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     GoRouter.of(context).push('/bandas');
                   },
-                  child: const Text('Bandas', style: TextStyle(fontSize: 35, color: Colors.black)),
+                  child: const Text(' Ver Bandas', style: TextStyle(fontSize: 35, color: Colors.black)),
                 ),
               ElevatedButton(
               onPressed: () {
-                GoRouter.of(context).push('/esp32');
+                GoRouter.of(context).push('/add_band_screen');
               },
-              child: const Text('VACIO', style: TextStyle(fontSize: 35, color: Colors.black)),
+              child: const Text('Añadir Banda', style: TextStyle(fontSize: 35, color: Colors.black)),
             ),
               ],
             ),

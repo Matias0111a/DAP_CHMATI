@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loginhome1/entities/bandas.dart';
 
-// Example provider (adjust as needed)
 final bandasProvider = Provider<List<Banda>>((ref) => bandasList);
 
 class BandasScreen extends ConsumerWidget {
