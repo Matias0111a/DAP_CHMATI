@@ -60,7 +60,7 @@ class BandasScreen extends ConsumerWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Botón para editar la banda
+                  // Botón para editar la banda | arriba del mismo iría un GestureDector con un onTap: ()
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blue),
                     tooltip: 'Editar banda',
