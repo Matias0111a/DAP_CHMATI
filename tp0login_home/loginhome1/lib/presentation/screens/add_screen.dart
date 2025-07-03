@@ -16,6 +16,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   final TextEditingController integrantesController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
   final TextEditingController originController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
 
   @override
   void dispose() {
@@ -96,6 +97,18 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: descripcionController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    labelText: 'Descripción',
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -104,7 +117,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                   if(nombre.isEmpty || integrantes.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Completar todos los campos'),
+                        content: Text('Completar nombre e integrantes'),
                         backgroundColor: Colors.red,
                         duration: Duration(seconds: 2),
                       ),
@@ -116,6 +129,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     integrantes: integrantesController.text,
                     image: imageController.text,
                     origen: originController.text.isNotEmpty ? originController.text : null,
+                    descripcion: descripcionController.text,
                   );
                   ref.read(bandasProvider.notifier).add(nuevaBanda);
                   GoRouter.of(context).go('/bandas');
@@ -126,7 +140,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     ),
                   );
                 },
-                child: const Text('Añadir Banda', style: TextStyle(fontSize: 20, color: Colors.black)),
+                child: const Text('Agregar', style: TextStyle(fontSize: 20, color: Colors.black)),
               )
             ]
           )

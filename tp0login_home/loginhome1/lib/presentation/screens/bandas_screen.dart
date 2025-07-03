@@ -26,185 +26,223 @@ class BandasScreen extends ConsumerWidget {
       ),
       // Lista de bandas
       body: ListView.builder(
-        itemCount: bandas.length, // Número de bandas en la lista
+        itemCount: bandas.length + 1, // +1 para el espacio extra
         itemBuilder: (context, index) {
-          final banda = bandas[index]; // Banda actual
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ListTile(
-              onTap: () => {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    // Muestra un diálogo con la información de la banda
-                    return AlertDialog(
-                      title: Text(banda.nombre),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Imagen de la banda si existe
-                          if (banda.image != null && banda.image!.isNotEmpty)
-                            Image.network(
-                              banda.image!,
-                              width: 100,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          const SizedBox(height: 8),
-                          Text('Integrantes: ${banda.integrantes}'),
-                          if (banda.origen != null)
-                            Text('Origen: ${banda.origen}'),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cerrar'),
-                        ),
-                      ],
-                    );
-                  },
-                )
-              },
-              // Muestra la imagen si existe
-              leading: (banda.image != null && banda.image!.isNotEmpty)
-                  ? Image.network(
-                      banda.image!,
-                      width: 70,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-              // Nombre de la banda
-              title: Text(
-                banda.nombre,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              // Información adicional de la banda
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Integrantes: ${banda.integrantes}'),
-                  if (banda.origen != null) Text('Origen: ${banda.origen}'),
-                ],
-              ),
-              isThreeLine: true,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Botón para editar la banda | arriba del mismo iría un GestureDector con un onTap: ()
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    tooltip: 'Editar banda',
-                    onPressed: () {
-                      // Muestra un diálogo para editar la banda
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          // Controladores para los campos del formulario
-                          final nombreController =
-                              TextEditingController(text: banda.nombre);
-                          final integrantesController = TextEditingController(
-                              text: banda.integrantes);
-                          final imageController = TextEditingController(
-                              text: banda.image ?? '');
-                          final origenController = TextEditingController(
-                              text: banda.origen ?? '');
-
-                          return AlertDialog(
-                            title: const Text('Editar Banda'),
-                            content: SingleChildScrollView(
+          if (index < bandas.length) {
+            final banda = bandas[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: ListTile(
+                onTap: () => {
+                  // Al tocar la banda, muestra un diálogo con la información de la banda
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      // Muestra un diálogo con la información de la banda
+                      return AlertDialog(
+                        title: Text(banda.nombre),
+                        content: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Imagen de la banda si hay
+                            if (banda.image != null && banda.image!.isNotEmpty)
+                              Image.network(
+                                banda.image!,
+                                width: 100,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 100,
+                                  height: 80,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image, color: Colors.grey, size: 50),
+                                ),
+                              ),
+                            const SizedBox(width: 16),
+                            Expanded(
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Campo para el nombre
-                                  TextField(
-                                    controller: nombreController,
-                                    decoration:
-                                        const InputDecoration(labelText: 'Nombre'),
-                                  ),
-                                  // Campo para los integrantes
-                                  TextField(
-                                    controller: integrantesController,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Integrantes'),
-                                  ),
-                                  // Campo para la imagen
-                                  TextField(
-                                    controller: imageController,
-                                    decoration:
-                                        const InputDecoration(labelText: 'Imagen URL'),
-                                  ),
-                                  // Campo para el origen
-                                  TextField(
-                                    controller: origenController,
-                                    decoration:
-                                        const InputDecoration(labelText: 'Origen'),
-                                  ),
+                                  Text('Integrantes: ${banda.integrantes}'),
+                                  if (banda.origen != null)
+                                    Text('Origen: ${banda.origen}'),
+                                  if (banda.descripcion != null && banda.descripcion!.isNotEmpty)
+                                    Text('Descripción: ${banda.descripcion}'),
                                 ],
                               ),
                             ),
-                            actions: [
-                              // Botón para cancelar la edición
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Cancelar'),
-                              ),
-                              // Botón para guardar los cambios
-                              ElevatedButton(
-                                onPressed: () {
-                                  final nombre = nombreController.text.trim();
-                                  final integrantes = integrantesController.text.trim();
-                                  // Validación de campos obligatorios
-                                  if (nombre.isEmpty || integrantes.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Nombre e integrantes son obligatorios'),
-                                        backgroundColor: Colors.red,
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  // Crea una nueva instancia de Banda con los datos editados
-                                  final nuevo = Banda(
-                                    nombre: nombre,
-                                    integrantes: integrantes,
-                                    image: imageController.text.trim().isEmpty
-                                        ? null
-                                        : imageController.text.trim(),
-                                    origen: origenController.text.trim().isEmpty
-                                        ? null
-                                        : origenController.text.trim(),
-                                  );
-                                  // Actualiza la banda en el provider
-                                  ref.read(bandasProvider.notifier).update(banda, nuevo);
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Guardar'),
-                              ),
-                            ],
-                          );
-                        },
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cerrar'),
+                          ),
+                        ],
                       );
                     },
+                  )
+                },
+                // Muestra la imagen si existe
+                leading: (banda.image != null && banda.image!.isNotEmpty)
+                    ? Image.network(
+                        banda.image!,
+                        width: 70,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 100,
+                                  height: 80,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image, color: Colors.grey, size: 50),
+                                )
+                    )
+                    : null,
+                // Nombre de la banda
+                title: Text(
+                  banda.nombre,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
-                  // Botón para eliminar la banda
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      // Elimina la banda usando el notifier del provider
-                      ref.read(bandasProvider.notifier).remove(banda);
-                    },
-                    tooltip: 'Eliminar banda',
-                  ),
-                ],
+                ),
+                // Información adicional de la banda
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Integrantes: ${banda.integrantes}'),
+                    if (banda.origen != null) Text('Origen: ${banda.origen}'),
+                  ],
+                ),
+                isThreeLine: true,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Botón para editar la banda
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      tooltip: 'Editar banda',
+                      onPressed: () {
+                        // Muestra un diálogo para editar la banda
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            // Controladores para los campos del formulario
+                            final nombreController =
+                                TextEditingController(text: banda.nombre);
+                            final integrantesController = TextEditingController(
+                                text: banda.integrantes);
+                            final imageController = TextEditingController(
+                                text: banda.image ?? '');
+                            final origenController = TextEditingController(
+                                text: banda.origen ?? '');
+                            final descripcionController = TextEditingController(
+                                text: banda.descripcion ?? '');
+
+                            return AlertDialog(
+                              title: const Text('Editar Banda'),
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Campo para el nombre
+                                    TextField(
+                                      controller: nombreController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Nombre'),
+                                    ),
+                                    // Campo para los integrantes
+                                    TextField(
+                                      controller: integrantesController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Integrantes'),
+                                    ),
+                                    // Campo para la imagen
+                                    TextField(
+                                      controller: imageController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Imagen URL'),
+                                    ),
+                                    // Campo para el origen
+                                    TextField(
+                                      controller: origenController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Origen'),
+                                    ),
+                                    // Campo para la descripción
+                                    TextField(
+                                      controller: descripcionController,
+                                      decoration:
+                                          const InputDecoration(labelText: 'Descripción'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                // Botón para cancelar la edición
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancelar'),
+                                ),
+                                // Botón para guardar los cambios
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final nombre = nombreController.text.trim();
+                                    final integrantes = integrantesController.text.trim();
+                                    // Validación de campos obligatorios
+                                    if (nombre.isEmpty || integrantes.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Nombre e integrantes son obligatorios'),
+                                          backgroundColor: Colors.red,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    // Crea una nueva instancia de Banda con los datos editados
+                                    final nuevo = Banda(
+                                      nombre: nombre,
+                                      integrantes: integrantes,
+                                      image: imageController.text.trim().isEmpty
+                                          ? null
+                                          : imageController.text.trim(),
+                                      origen: origenController.text.trim().isEmpty
+                                          ? null
+                                          : origenController.text.trim(),
+                                      descripcion: descripcionController.text.trim().isEmpty
+                                          ? null
+                                          : descripcionController.text.trim(),
+                                    );
+                                    // Actualiza la banda en el provider
+                                    ref.read(bandasProvider.notifier).update(banda, nuevo);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Guardar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    // Botón para eliminar la banda
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        // Elimina la banda usando el notifier del provider
+                        ref.read(bandasProvider.notifier).remove(banda);
+                      },
+                      tooltip: 'Eliminar banda',
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            return const SizedBox(height: 80);
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
