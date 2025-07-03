@@ -20,16 +20,28 @@ List<Banda> bandasList = [
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/The_Beatles_members_at_New_York_City_in_1964.jpg/960px-The_Beatles_members_at_New_York_City_in_1964.jpg',
     origen: 'Reino Unido', 
   ),
+   Banda(
+    nombre: 'Serú Girán',
+    integrantes: 'Charly, David, Oscar, Pedro',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/9/93/Seru_Giran_1978.jpg',
+    origen: 'Argentina',
+  ),
   Banda(
     nombre: 'Pescado Rabioso',
     integrantes: 'Luis Alberto, Patricia, Osvaldo',
     image: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Pescado_Rabioso_1972-3.jpg',
     origen: 'Argentina',
-  ),  
-  Banda(
-    nombre: 'Serú Girán',
-    integrantes: 'Charly, David, Oscar, Pedro',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/9/93/Seru_Giran_1978.jpg',
-    origen: 'Argentina',
+  ), 
+   Banda(
+    nombre: 'Emerson, Lake & Palmer',
+    integrantes: 'Keith Emerson, Greg Lake, Carl Palmer',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Emerson_Lake_and_Palmer_1971.jpg',
+    origen: 'Reino Unido',
+  ),
+    Banda(
+    nombre: 'Genesis',
+    integrantes: 'Peter Gabriel, Phil Collins, Tony Banks, Mike Rutherford, Steve Hackett',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Genesis_early_70s.jpg',
+    origen: 'Reino Unido',
   ),
 ];

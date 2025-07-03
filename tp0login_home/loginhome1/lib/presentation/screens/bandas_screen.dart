@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loginhome1/entities/bandas.dart';
 import 'package:loginhome1/presentation/providers/bandas_provider.dart';
 
@@ -31,6 +32,40 @@ class BandasScreen extends ConsumerWidget {
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ListTile(
+              onTap: () => {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    // Muestra un diálogo con la información de la banda
+                    return AlertDialog(
+                      title: Text(banda.nombre),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Imagen de la banda si existe
+                          if (banda.image != null && banda.image!.isNotEmpty)
+                            Image.network(
+                              banda.image!,
+                              width: 100,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          const SizedBox(height: 8),
+                          Text('Integrantes: ${banda.integrantes}'),
+                          if (banda.origen != null)
+                            Text('Origen: ${banda.origen}'),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cerrar'),
+                        ),
+                      ],
+                    );
+                  },
+                )
+              },
               // Muestra la imagen si existe
               leading: (banda.image != null && banda.image!.isNotEmpty)
                   ? Image.network(
@@ -171,6 +206,14 @@ class BandasScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navega a la pantalla de agregar banda
+          GoRouter.of(context).push('/add_band_screen');
+        },
+        tooltip: 'Agregar Banda',
+        child: const Icon(Icons.add),
       ),
     );
   }
