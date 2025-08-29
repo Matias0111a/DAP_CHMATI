@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loginhome1/entities/bandas.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loginhome1/presentation/providers/bandas_provider.dart';
 class AddScreen extends ConsumerStatefulWidget {
   static const String name = 'add_band_screen';
   const AddScreen({super.key});
@@ -124,18 +122,19 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     );
                     return;
                   }
-                  final nuevaBanda = Banda(
+                  /*final nuevaBanda = Banda(
                     nombre: nombreController.text,
                     integrantes: integrantesController.text,
                     image: imageController.text,
                     origen: originController.text.isNotEmpty ? originController.text : null,
                     descripcion: descripcionController.text,
-                  );
-                  ref.read(bandasProvider.notifier).add(nuevaBanda);
+                  ); */
+                  //ref.read(bandasProvider.notifier).add(nuevaBanda);
                   GoRouter.of(context).go('/bandas');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Banda ${nuevaBanda.nombre} añadida correctamente'),
+                      //Text('Banda ${nuevaBanda.nombre} añadida correctamente')
+                      content: Text(''),
                       duration: const Duration(seconds: 2),
                     ),
                   );

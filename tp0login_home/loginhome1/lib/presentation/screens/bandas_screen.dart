@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loginhome1/entities/bandas.dart';
 import 'package:loginhome1/presentation/providers/bandas_provider.dart';
 
 // Pantalla que muestra la lista de bandas usando Riverpod para el manejo de estado
@@ -13,6 +12,10 @@ class BandasScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Escucha el provider de bandas de forma reactiva
     final bandas = ref.watch(bandasProvider);
+    // Función para subir todas las bandas en la base de datos (debería llamarse una sola vez)
+    /*WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(bandasProvider.notifier).subirTodasBandas();
+    });*/
 
     return Scaffold(
       appBar: AppBar(
@@ -202,7 +205,7 @@ class BandasScreen extends ConsumerWidget {
                                       return;
                                     }
                                     // Crea una nueva instancia de Banda con los datos editados
-                                    final nuevo = Banda(
+                                    /*final nuevo = Banda(
                                       nombre: nombre,
                                       integrantes: integrantes,
                                       image: imageController.text.trim().isEmpty
@@ -216,8 +219,9 @@ class BandasScreen extends ConsumerWidget {
                                           : descripcionController.text.trim(),
                                     );
                                     // Actualiza la banda en el provider
-                                    ref.read(bandasProvider.notifier).update(banda, nuevo);
+                                    //ref.read(bandasProvider.notifier).update(banda, nuevo);
                                     Navigator.of(context).pop();
+                                    */
                                   },
                                   child: const Text('Guardar'),
                                 ),
@@ -232,7 +236,7 @@ class BandasScreen extends ConsumerWidget {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
                         // Elimina la banda usando el notifier del provider
-                        ref.read(bandasProvider.notifier).remove(banda);
+                        //ref.read(bandasProvider.notifier).remove(banda);
                       },
                       tooltip: 'Eliminar banda',
                     ),

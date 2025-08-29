@@ -1,32 +1,59 @@
-// Importa el paquete flutter_riverpod para la gestión de estado.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Importa la entidad Banda desde el archivo correspondiente.
 import 'package:loginhome1/entities/bandas.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Define un StateNotifierProvider que expone una lista de Bandas y su notificador.
 final bandasProvider = StateNotifierProvider<BandasNotifier, List<Banda>>(
   (ref) => BandasNotifier(),
 );
 
-// Clase que extiende StateNotifier para manejar una lista de Bandas.
 class BandasNotifier extends StateNotifier<List<Banda>> {
-  // Inicializa el estado con la lista de bandas existente.
-  BandasNotifier() : super(bandasList);
+  final CollectionReference<Banda> _bandasRef =
+      FirebaseFirestore.instance
+          .collection('bandas')
+          .withConverter<Banda>(
+            fromFirestore: (snapshot, _) {
+              final banda = Banda.fromFirestore(snapshot, options);              // Muy importante: asignamos el doc.id
+              return banda.copyWith(id: snapshot.id);
+            },
+            toFirestore: (banda, options) => banda.toFirestore(),
+          );
 
-  // Método para agregar una nueva banda a la lista.
-  void add(Banda banda) {
-    state = [...state, banda];
+  BandasNotifier() : super([]) {
+    // Escucha cambios en tiempo real y actualiza el estado
+    _bandasRef.snapshots().listen((snapshot) {
+      state = snapshot.docs.map((doc) {
+        final banda = doc.data();
+        return banda.copyWith(id: doc.id);
+      }).toList();
+    });
+  }
+  
+  static SnapshotOptions? get options => null;
+
+  /// Agregar banda a Firestore
+  Future<void> add(Banda banda) async {
+    await _bandasRef.add(banda);
   }
 
-  // Método para eliminar una banda de la lista.
-  void remove(Banda banda) {
-    state = state.where((b) => b != banda).toList();
+  /// Eliminar banda de Firestore
+  Future<void> remove(Banda banda) async {
+    if (banda.id == null) return;
+    await _bandasRef.doc(banda.id).delete();
   }
 
-  // Método para actualizar una banda existente en la lista.
-  void update(Banda oldBanda, Banda newBanda) {
-    state = [
-      for (final b in state) if (b == oldBanda) newBanda else b
-    ];
+  /// Actualizar banda en Firestore
+  Future<void> update(Banda banda) async {
+    if (banda.id == null) return;
+    await _bandasRef.doc(banda.id).set(banda);
+  }
+
+  /// Subir todas las bandas locales a Firestore (solo si está vacío)
+  Future<void> subirTodasBandas(List<Banda> bandasLocales) async {
+    final snapshot = await _bandasRef.get();
+    if (snapshot.docs.isEmpty) {
+      for (final banda in bandasLocales) {
+        await _bandasRef.add(banda);
+      }
+    }
   }
 }
