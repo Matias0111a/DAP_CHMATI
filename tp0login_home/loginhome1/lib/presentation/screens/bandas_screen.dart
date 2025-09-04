@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loginhome1/presentation/providers/bandas_provider.dart';
-
+import 'package:loginhome1/entities/bandas.dart';
 // Pantalla que muestra la lista de bandas usando Riverpod para el manejo de estado
 class BandasScreen extends ConsumerWidget {
   static const String name = 'bandas_screen';
@@ -189,42 +189,39 @@ class BandasScreen extends ConsumerWidget {
                                   child: const Text('Cancelar'),
                                 ),
                                 // Botón para guardar los cambios
-                                ElevatedButton(
-                                  onPressed: () {
-                                    final nombre = nombreController.text.trim();
-                                    final integrantes = integrantesController.text.trim();
-                                    // Validación de campos obligatorios
-                                    if (nombre.isEmpty || integrantes.isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Nombre e integrantes son obligatorios'),
-                                          backgroundColor: Colors.red,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    // Crea una nueva instancia de Banda con los datos editados
-                                    /*final nuevo = Banda(
-                                      nombre: nombre,
-                                      integrantes: integrantes,
-                                      image: imageController.text.trim().isEmpty
-                                          ? null
-                                          : imageController.text.trim(),
-                                      origen: origenController.text.trim().isEmpty
-                                          ? null
-                                          : origenController.text.trim(),
-                                      descripcion: descripcionController.text.trim().isEmpty
-                                          ? null
-                                          : descripcionController.text.trim(),
+                               ElevatedButton(
+                                onPressed: () {
+                                  final nombre = nombreController.text.trim();
+                                  final integrantes = integrantesController.text.trim();
+
+                                  if (nombre.isEmpty || integrantes.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Nombre e integrantes son obligatorios'),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 2),
+                                      ),
                                     );
-                                    // Actualiza la banda en el provider
-                                    //ref.read(bandasProvider.notifier).update(banda, nuevo);
+                                    return;
+                                  }
+
+                                  final nuevo = Banda(
+                                    id: banda.id, // mantener el id original
+                                    nombre: nombre,
+                                    integrantes: integrantes,
+                                    image: imageController.text.trim().isEmpty ? null : imageController.text.trim(),
+                                    origen: origenController.text.trim().isEmpty ? null : origenController.text.trim(),
+                                    descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
+                                  );
+
+                                    // Llamar al provider para actualizar
+                                    ref.read(bandasProvider.notifier).updateBanda(nuevo);
+
                                     Navigator.of(context).pop();
-                                    */
                                   },
                                   child: const Text('Guardar'),
                                 ),
+
                               ],
                             );
                           },
@@ -236,7 +233,7 @@ class BandasScreen extends ConsumerWidget {
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
                         // Elimina la banda usando el notifier del provider
-                        //ref.read(bandasProvider.notifier).remove(banda);
+                        ref.read(bandasProvider.notifier).removeBanda(banda.id!);
                       },
                       tooltip: 'Eliminar banda',
                     ),

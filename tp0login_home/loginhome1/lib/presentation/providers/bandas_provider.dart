@@ -11,11 +11,11 @@ class BandasNotifier extends StateNotifier<List<Banda>> {
       FirebaseFirestore.instance
           .collection('bandas')
           .withConverter<Banda>(
-            fromFirestore: (snapshot, _) {
-              final banda = Banda.fromFirestore(snapshot, options);              // Muy importante: asignamos el doc.id
+            fromFirestore: (snapshot, options) {
+              final banda = Banda.fromFirestore(snapshot, options);
               return banda.copyWith(id: snapshot.id);
             },
-            toFirestore: (banda, options) => banda.toFirestore(),
+            toFirestore: (banda, _) => banda.toFirestore(),
           );
 
   BandasNotifier() : super([]) {
@@ -27,22 +27,19 @@ class BandasNotifier extends StateNotifier<List<Banda>> {
       }).toList();
     });
   }
-  
-  static SnapshotOptions? get options => null;
 
   /// Agregar banda a Firestore
-  Future<void> add(Banda banda) async {
+  Future<void> addBanda(Banda banda) async {
     await _bandasRef.add(banda);
   }
 
   /// Eliminar banda de Firestore
-  Future<void> remove(Banda banda) async {
-    if (banda.id == null) return;
-    await _bandasRef.doc(banda.id).delete();
+  Future<void> removeBanda(String id) async {
+    await _bandasRef.doc(id).delete();
   }
 
   /// Actualizar banda en Firestore
-  Future<void> update(Banda banda) async {
+  Future<void> updateBanda(Banda banda) async {
     if (banda.id == null) return;
     await _bandasRef.doc(banda.id).set(banda);
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loginhome1/entities/bandas.dart';
+import 'package:loginhome1/presentation/providers/bandas_provider.dart';
+
 class AddScreen extends ConsumerStatefulWidget {
   static const String name = 'add_band_screen';
   const AddScreen({super.key});
@@ -22,6 +25,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     integrantesController.dispose();
     imageController.dispose();
     originController.dispose();
+    descripcionController.dispose();
     super.dispose();
   }
 
@@ -41,78 +45,27 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children:[
+            children: [
               const Text('Ingrese los datos de la banda'),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: nombreController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: 'Nombre',
-                  ),
-                ),
-              ),
+
+              _buildTextField(nombreController, 'Nombre'),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: integrantesController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: 'Integrantes',
-                  ),
-                ),
-              ),
+              _buildTextField(integrantesController, 'Integrantes'),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: imageController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: 'Imagen URL',
-                  ),
-                ),
-              ),
+              _buildTextField(imageController, 'Imagen URL'),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: originController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: 'Origen',
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: descripcionController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: 'Descripción',
-                  ),
-                ),
-              ),
+              _buildTextField(originController, 'Origen'),
               const SizedBox(height: 20),
+              _buildTextField(descripcionController, 'Descripción'),
+              const SizedBox(height: 20),
+
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final nombre = nombreController.text.trim();
                   final integrantes = integrantesController.text.trim();
-                  if(nombre.isEmpty || integrantes.isEmpty) {
+
+                  if (nombre.isEmpty || integrantes.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Completar nombre e integrantes'),
@@ -122,28 +75,62 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     );
                     return;
                   }
-                  /*final nuevaBanda = Banda(
-                    nombre: nombreController.text,
-                    integrantes: integrantesController.text,
-                    image: imageController.text,
-                    origen: originController.text.isNotEmpty ? originController.text : null,
-                    descripcion: descripcionController.text,
-                  ); */
-                  //ref.read(bandasProvider.notifier).add(nuevaBanda);
-                  GoRouter.of(context).go('/bandas');
+
+                  // Crear la nueva banda
+                  final nuevaBanda = Banda(
+                    id: null, // Firestore lo asigna
+                    nombre: nombre,
+                    integrantes: integrantes,
+                    image: imageController.text.trim(),
+                    origen: originController.text.trim().isNotEmpty
+                        ? originController.text.trim()
+                        : null,
+                    descripcion: descripcionController.text.trim(),
+                  );
+
+                  // Guardar en Firestore con Riverpod
+                  await ref.read(bandasProvider.notifier).addBanda(nuevaBanda);
+
+                  // Revisar si el State sigue montado
+                  if (!mounted) return;
+
+                  // Mostrar confirmación
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      //Text('Banda ${nuevaBanda.nombre} añadida correctamente')
-                      content: Text(''),
+                      content:
+                          Text('Banda "${nuevaBanda.nombre}" añadida correctamente'),
+                      backgroundColor: Colors.green,
                       duration: const Duration(seconds: 2),
                     ),
                   );
+
+                  // Redirigir a la lista de bandas
+                  GoRouter.of(context).go('/bandas');
                 },
-                child: const Text('Agregar', style: TextStyle(fontSize: 20, color: Colors.black)),
-              )
-            ]
-          )
-        ), 
+                child: const Text(
+                  'Agregar',
+                  style: TextStyle(fontSize: 20, color: Colors.black),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          labelText: label,
+        ),
       ),
     );
   }
