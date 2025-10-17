@@ -17,7 +17,6 @@ class Banda {
     this.descripcion,
   });
 
-  /// Copiar con cambios (útil para actualizar con un nuevo id de Firestore, etc.)
   Banda copyWith({
     String? id,
     String? nombre,
@@ -47,7 +46,6 @@ class Banda {
     };
   }
 
-  /// Crea un objeto Banda desde Firestore
   static Banda fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
     SnapshotOptions? options,

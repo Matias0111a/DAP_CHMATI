@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:loginhome1/entities/user_login.dart';
+import 'package:loginhome1/presentation/providers/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String name = 'login';
@@ -11,126 +12,122 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController userController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  bool passwordVisible = false;
+  bool _loading = false;
 
-  // Estados verificador
-  static const int incorrect = 0;
-  static const int usercorrectPasswordincorrect = 1;
-  static const int correct = 2;
+  Future<void> _signInWithGoogle() async {
+    setState(() => _loading = true);
+    try {
+      final auth = AuthService();
+      await auth.signInWithGoogle();
 
-  // Estado inicial
-  int verification = incorrect;
-  String userDirection = '';
-  String userName = '';
+      final user = FirebaseAuth.instance.currentUser;
+      final userName =
+          user?.displayName ?? user?.email?.split('@').first ?? 'Usuario';
+      final direction = 'google';
+
+      if (!mounted) return;
+      GoRouter.of(context).go('/home', extra: {
+        'username': userName,
+        'direction': direction,
+      });
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error Google Sign-In: ${e.message ?? e.code}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error Google Sign-In: $e')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final double buttonWidth = MediaQuery.of(context).size.width * 0.8;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Iniciar sesión'),
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Ingrese email y contraseña'),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                controller: userController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4285F4), Color(0xFF34A853)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                  labelText: 'Email',
+                ],
+              ),
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: Icon(
+                  Icons.account_circle,
+                  size: 64,
+                  color: Colors.white,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
-                obscureText: !passwordVisible,
-                controller: passwordController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  labelText: 'Contraseña',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      passwordVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        passwordVisible = !passwordVisible;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  verification = incorrect;
-                  for (var user in listaUsuarios) {
-                    if (user.email == userController.text &&
-                        user.password == passwordController.text) {
-                      verification = correct;
-                      userDirection = user.direction;
-                      userName = user.userName;
-                      break;
-                    } else if (user.email == userController.text &&
-                               user.password != passwordController.text) {
-                      verification = usercorrectPasswordincorrect;
-                      userDirection = user.direction;
-                      break;
-                    }
-                  }
 
-                  if (verification == correct) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Inicio de sesión exitoso'),
-                        backgroundColor: Colors.green,
-                        duration: Duration(seconds: 2),
+
+            const SizedBox(height: 36), 
+
+            SizedBox(
+              width: buttonWidth > 500 ? 500 : buttonWidth,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  minimumSize: const Size.fromHeight(60),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                  textStyle:
+                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                onPressed: _loading ? null : _signInWithGoogle,
+                child: _loading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            Icons.g_mobiledata,
+                            size: 28,
+                            color: Color(0xFF4285F4),
+                          ),
+                          SizedBox(width: 20),
+                          Text(
+                            'Continuar con Google',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ],
                       ),
-                    );
-                    GoRouter.of(context).push('/home', extra: {
-                      'username': userName,
-                      'direction': userDirection,
-                    });
-                  } else if (verification == usercorrectPasswordincorrect) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Contraseña incorrecta'),
-                        backgroundColor: Colors.orange,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  } else if (verification == incorrect) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Usuario o contraseña incorrectos'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                });
-              },
-              child: const Text('Iniciar Sesión'),
+              ),
             ),
           ],
         ),

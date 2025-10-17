@@ -50,7 +50,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               const SizedBox(height: 20),
 
               _buildTextField(nombreController, 'Nombre'),
-              const SizedBox(height: 20),
+              const SizedBox(height: 20), 
               _buildTextField(integrantesController, 'Integrantes'),
               const SizedBox(height: 20),
               _buildTextField(imageController, 'Imagen URL'),
@@ -113,7 +113,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-            ],
+            ] ,
           ),
         ),
       ),

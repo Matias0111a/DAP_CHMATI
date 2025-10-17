@@ -37,7 +37,6 @@ class BandasScreen extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: ListTile(
                 onTap: () => {
-                  // Al tocar la banda, muestra un diálogo con la información de la banda
                   showDialog(
                     context: context,
                     builder: (context) {
