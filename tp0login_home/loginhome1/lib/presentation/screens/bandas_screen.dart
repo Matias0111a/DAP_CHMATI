@@ -3,22 +3,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loginhome1/presentation/providers/bandas_provider.dart';
 import 'package:loginhome1/entities/bandas.dart';
-// Pantalla que muestra la lista de bandas usando Riverpod para el manejo de estado
+import 'package:firebase_auth/firebase_auth.dart';
+
 class BandasScreen extends ConsumerWidget {
   static const String name = 'bandas_screen';
   const BandasScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Escucha el provider de bandas de forma reactiva
     final bandas = ref.watch(bandasProvider);
-    // Función para subir todas las bandas en la base de datos (debería llamarse una sola vez)
-    /*WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(bandasProvider.notifier).subirTodasBandas();
-    });*/
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            final user = FirebaseAuth.instance.currentUser;
+            final name = user?.displayName ?? 'Invitado';
+            GoRouter.of(context).go(
+              '/home',
+              extra: {
+                'userName': name,
+                'direction': 'home',
+              },
+            );
+          },
+        ),
         title: const Text("Bandas"),
         centerTitle: true,
         titleTextStyle: const TextStyle(
@@ -27,9 +37,10 @@ class BandasScreen extends ConsumerWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      // Lista de bandas
+
+      // =================== LISTA DE BANDAS ===================
       body: ListView.builder(
-        itemCount: bandas.length + 1, // +1 para el espacio extra
+        itemCount: bandas.length + 1,
         itemBuilder: (context, index) {
           if (index < bandas.length) {
             final banda = bandas[index];
@@ -40,24 +51,24 @@ class BandasScreen extends ConsumerWidget {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      // Muestra un diálogo con la información de la banda
                       return AlertDialog(
                         title: Text(banda.nombre),
                         content: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Imagen de la banda si hay
                             if (banda.image != null && banda.image!.isNotEmpty)
                               Image.network(
                                 banda.image!,
                                 width: 100,
                                 height: 80,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
                                   width: 100,
                                   height: 80,
                                   color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image, color: Colors.grey, size: 50),
+                                  child: const Icon(Icons.broken_image,
+                                      color: Colors.grey, size: 50),
                                 ),
                               ),
                             const SizedBox(width: 16),
@@ -69,7 +80,8 @@ class BandasScreen extends ConsumerWidget {
                                   Text('Integrantes: ${banda.integrantes}'),
                                   if (banda.origen != null)
                                     Text('Origen: ${banda.origen}'),
-                                  if (banda.descripcion != null && banda.descripcion!.isNotEmpty)
+                                  if (banda.descripcion != null &&
+                                      banda.descripcion!.isNotEmpty)
                                     Text('Descripción: ${banda.descripcion}'),
                                 ],
                               ),
@@ -86,7 +98,6 @@ class BandasScreen extends ConsumerWidget {
                     },
                   )
                 },
-                // Muestra la imagen si existe
                 leading: (banda.image != null && banda.image!.isNotEmpty)
                     ? Image.network(
                         banda.image!,
@@ -94,14 +105,14 @@ class BandasScreen extends ConsumerWidget {
                         height: 60,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
-                                  width: 100,
-                                  height: 80,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image, color: Colors.grey, size: 50),
-                                )
-                    )
+                          width: 100,
+                          height: 80,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.broken_image,
+                              color: Colors.grey, size: 50),
+                        ),
+                      )
                     : null,
-                // Nombre de la banda
                 title: Text(
                   banda.nombre,
                   style: const TextStyle(
@@ -109,38 +120,36 @@ class BandasScreen extends ConsumerWidget {
                     fontSize: 18,
                   ),
                 ),
-                // Información adicional de la banda
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Integrantes: ${banda.integrantes}'),
-                    if (banda.origen != null) Text('Origen: ${banda.origen}'),
+                    if (banda.origen != null)
+                      Text('Origen: ${banda.origen}'),
                   ],
                 ),
                 isThreeLine: true,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Botón para editar la banda
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
                       tooltip: 'Editar banda',
                       onPressed: () {
-                        // Muestra un diálogo para editar la banda
                         showDialog(
                           context: context,
                           builder: (context) {
-                            // Controladores para los campos del formulario
                             final nombreController =
                                 TextEditingController(text: banda.nombre);
-                            final integrantesController = TextEditingController(
-                                text: banda.integrantes);
+                            final integrantesController =
+                                TextEditingController(text: banda.integrantes);
                             final imageController = TextEditingController(
                                 text: banda.image ?? '');
                             final origenController = TextEditingController(
                                 text: banda.origen ?? '');
-                            final descripcionController = TextEditingController(
-                                text: banda.descripcion ?? '');
+                            final descripcionController =
+                                TextEditingController(
+                                    text: banda.descripcion ?? '');
 
                             return AlertDialog(
                               title: const Text('Editar Banda'),
@@ -148,91 +157,101 @@ class BandasScreen extends ConsumerWidget {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Campo para el nombre
                                     TextField(
                                       controller: nombreController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Nombre'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Nombre'),
                                     ),
-                                    // Campo para los integrantes
                                     TextField(
                                       controller: integrantesController,
                                       decoration: const InputDecoration(
                                           labelText: 'Integrantes'),
                                     ),
-                                    // Campo para la imagen
                                     TextField(
                                       controller: imageController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Imagen URL'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Imagen URL'),
                                     ),
-                                    // Campo para el origen
                                     TextField(
                                       controller: origenController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Origen'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Origen'),
                                     ),
-                                    // Campo para la descripción
                                     TextField(
                                       controller: descripcionController,
-                                      decoration:
-                                          const InputDecoration(labelText: 'Descripción'),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Descripción'),
                                     ),
                                   ],
                                 ),
                               ),
                               actions: [
-                                // Botón para cancelar la edición
                                 TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
                                   child: const Text('Cancelar'),
                                 ),
-                                // Botón para guardar los cambios
-                               ElevatedButton(
-                                onPressed: () {
-                                  final nombre = nombreController.text.trim();
-                                  final integrantes = integrantesController.text.trim();
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final nombre = nombreController.text.trim();
+                                    final integrantes =
+                                        integrantesController.text.trim();
 
-                                  if (nombre.isEmpty || integrantes.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Nombre e integrantes son obligatorios'),
-                                        backgroundColor: Colors.red,
-                                        duration: Duration(seconds: 2),
-                                      ),
+                                    if (nombre.isEmpty ||
+                                        integrantes.isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Nombre e integrantes son obligatorios'),
+                                          backgroundColor: Colors.red,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    final nuevo = Banda(
+                                      id: banda.id,
+                                      nombre: nombre,
+                                      integrantes: integrantes,
+                                      image:
+                                          imageController.text.trim().isEmpty
+                                              ? null
+                                              : imageController.text.trim(),
+                                      origen:
+                                          origenController.text.trim().isEmpty
+                                              ? null
+                                              : origenController.text.trim(),
+                                      descripcion:
+                                          descripcionController.text
+                                                  .trim()
+                                                  .isEmpty
+                                              ? null
+                                              : descripcionController.text
+                                                  .trim(),
                                     );
-                                    return;
-                                  }
 
-                                  final nuevo = Banda(
-                                    id: banda.id, // mantener el id original
-                                    nombre: nombre,
-                                    integrantes: integrantes,
-                                    image: imageController.text.trim().isEmpty ? null : imageController.text.trim(),
-                                    origen: origenController.text.trim().isEmpty ? null : origenController.text.trim(),
-                                    descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-                                  );
-
-                                    // Llamar al provider para actualizar
-                                    ref.read(bandasProvider.notifier).updateBanda(nuevo);
+                                    ref
+                                        .read(bandasProvider.notifier)
+                                        .updateBanda(nuevo);
 
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text('Guardar'),
                                 ),
-
                               ],
                             );
                           },
                         );
                       },
                     ),
-                    // Botón para eliminar la banda
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
-                        // Elimina la banda usando el notifier del provider
-                        ref.read(bandasProvider.notifier).removeBanda(banda.id!);
+                        ref
+                            .read(bandasProvider.notifier)
+                            .removeBanda(banda.id!);
                       },
                       tooltip: 'Eliminar banda',
                     ),
@@ -245,9 +264,9 @@ class BandasScreen extends ConsumerWidget {
           }
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navega a la pantalla de agregar banda
           GoRouter.of(context).push('/add_band_screen');
         },
         tooltip: 'Agregar Banda',

@@ -5,13 +5,13 @@ import 'package:loginhome1/presentation/providers/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String name = 'home';
-  const HomeScreen({super.key, required this.userName, required this.direction});
-  final String userName;
-  final String direction;
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final userName =
+        user?.displayName ?? user?.email?.split('@').first ?? 'Invitado';
     final photoUrl = user?.photoURL;
 
     return Scaffold(
@@ -24,7 +24,6 @@ class HomeScreen extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
         actions: [
-          // Profile avatar + menu
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: PopupMenuButton<String>(
@@ -33,8 +32,8 @@ class HomeScreen extends StatelessWidget {
                 if (value == 'signout') {
                   try {
                     await AuthService().signOut();
-                    // Navegar a login (ajusta la ruta si tu router usa otra)
-                    GoRouter.of(context).go('/login');
+                    // Cierra sesión y navega al login
+                    if (context.mounted) GoRouter.of(context).go('/login');
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -45,9 +44,9 @@ class HomeScreen extends StatelessWidget {
                 }
               },
               itemBuilder: (context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'profile',
-                  child: Text('Ver perfil'),
+                  child: Text("Perfil"),
                 ),
                 const PopupMenuItem<String>(
                   value: 'signout',
@@ -57,7 +56,8 @@ class HomeScreen extends StatelessWidget {
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.transparent,
-                backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                backgroundImage:
+                    photoUrl != null ? NetworkImage(photoUrl) : null,
                 child: photoUrl == null
                     ? const Icon(Icons.person, color: Colors.black)
                     : null,
@@ -66,12 +66,14 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+
+      // --- Cuerpo principal ---
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Bienvenido ${userName.toString()}',
+              'Bienvenido $userName',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 20,
@@ -80,16 +82,16 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    GoRouter.of(context).push('/bandas');
-                  },
-                  child: const Text('Bandas', style: TextStyle(fontSize: 30, color: Colors.black)),
-                ),
-              ],
+
+            // --- Botón para ir a Bandas ---
+            ElevatedButton(
+              onPressed: () {
+                GoRouter.of(context).go('/bandas');
+              },
+              child: const Text(
+                'Ver Bandas',
+                style: TextStyle(fontSize: 30, color: Colors.black),
+              ),
             ),
           ],
         ),

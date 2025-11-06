@@ -47,18 +47,27 @@ class Banda {
   }
 
   static Banda fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
+  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  SnapshotOptions? options,
+) {
+  final data = snapshot.data();
 
+  if (data == null) {
     return Banda(
       id: snapshot.id,
-      nombre: data?['nombre'] ?? '',
-      integrantes: data?['integrantes'] ?? '',
-      image: data?['image'],
-      origen: data?['origen'],
-      descripcion: data?['descripcion'],
+      nombre: 'Desconocido',
+      integrantes: 'N/A',
     );
   }
+
+  return Banda(
+    id: snapshot.id,
+    nombre: data['nombre'] ?? '',
+    integrantes: data['integrantes'] ?? '',
+    image: data['image'],
+    origen: data['origen'],
+    descripcion: data['descripcion'],
+  );
+}
+
 }

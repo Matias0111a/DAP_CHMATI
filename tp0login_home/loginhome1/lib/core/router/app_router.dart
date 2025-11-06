@@ -13,16 +13,13 @@ final appRouter = GoRouter(
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
-      name: HomeScreen.name,
-      path: '/home',
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
-        return HomeScreen(
-          userName: extra['username'] as String,
-          direction: extra['direction'] as String,
-        );
-      },
-    ),
+  name: HomeScreen.name,
+  path: '/home',
+  builder: (context, state) {
+    return HomeScreen();
+  },
+),
+
     GoRoute(
       name: BandasScreen.name,
       path: '/bandas',

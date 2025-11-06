@@ -1,34 +1,28 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
 class UserLogin {
   String userName;
-  String password;
-  String? email;
-  String? direction;
+  String details;
   String? uid;
+  List<String> favouriteBands = [];
 
-  UserLogin(this.userName, this.password, this.email, this.direction, {this.uid});
+  UserLogin(this.userName, this.details, {this.uid});
 
-  factory UserLogin.fromFirebaseUser(User user, {String? direction}) {
+  factory UserLogin.fromFirebaseUser(User user) {
     final email = user.email;
     final displayName = user.displayName;
     final userName = displayName ?? (email != null ? email.split('@').first : '');
-    return UserLogin(userName, '', email, direction, uid: user.uid);
+    return UserLogin(userName, '', uid: user.uid);
   }
 
   Map<String, dynamic> toMap() => {
         'userName': userName,
-        'password': password,
-        'email': email,
-        'direction': direction,
+        'details': details,
         'uid': uid,
       };
 
   factory UserLogin.fromMap(Map<String, dynamic> map) => UserLogin(
         map['userName'] as String? ?? '',
-        map['password'] as String? ?? '',
-        map['email'] as String?,
-        map['direction'] as String?,
+        map['details'] as String? ?? '',
         uid: map['uid'] as String?,
       );
 }
