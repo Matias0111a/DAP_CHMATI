@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+
 class UserLogin {
   String userName;
   String details;
   String? uid;
-  List<String> favouriteBands = [];
 
   UserLogin(this.userName, this.details, {this.uid});
 
@@ -12,6 +12,18 @@ class UserLogin {
     final displayName = user.displayName;
     final userName = displayName ?? (email != null ? email.split('@').first : '');
     return UserLogin(userName, '', uid: user.uid);
+  }
+
+  UserLogin copyWith({
+    String? userName,
+    String? details,
+    String? uid,
+  }) {
+    return UserLogin(
+      userName ?? this.userName,
+      details ?? this.details,
+      uid: uid ?? this.uid,
+    );
   }
 
   Map<String, dynamic> toMap() => {

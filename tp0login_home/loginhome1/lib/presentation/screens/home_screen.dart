@@ -73,9 +73,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   value: 'logout',
                   child: const Text('Cerrar sesión'),
                   onTap: () async {
-                    await AuthService().signOut();
-                    if (mounted) {
-                      GoRouter.of(context).go('/login');
+                    try {
+                      await AuthService().signOut();
+                      if (mounted) {
+                        // Pequeño delay
+                        await Future.delayed(const Duration(milliseconds: 500));
+                        GoRouter.of(context).go('/login');
+                      }
+                    } catch (e) {
+                      print('Error logging out: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Error al cerrar sesión'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   },
                 ),

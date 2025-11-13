@@ -12,6 +12,13 @@ class BandasScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bandas = ref.watch(bandasProvider);
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? '';
+
+    // Mostrar favoritos primero
+    final favoritos = bandas.where((b) => b.isFavoritedBy(uid)).toList();
+    final noFavoritos = bandas.where((b) => !b.isFavoritedBy(uid)).toList();
+    final bandasOrdenadas = [...favoritos, ...noFavoritos];
 
     return Scaffold(
       appBar: AppBar(
@@ -40,12 +47,15 @@ class BandasScreen extends ConsumerWidget {
 
       // =================== LISTA DE BANDAS ===================
       body: ListView.builder(
-        itemCount: bandas.length + 1,
+        itemCount: bandasOrdenadas.length + 1,
         itemBuilder: (context, index) {
-          if (index < bandas.length) {
-            final banda = bandas[index];
+          if (index < bandasOrdenadas.length) {
+            final banda = bandasOrdenadas[index];
+            final isFavorite = banda.isFavoritedBy(uid);
+
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              color: isFavorite ? Colors.yellow[50] : null,
               child: ListTile(
                 onTap: () => {
                   showDialog(
@@ -132,6 +142,18 @@ class BandasScreen extends ConsumerWidget {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : Colors.grey,
+                      ),
+                      tooltip: isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos',
+                      onPressed: () {
+                        ref
+                            .read(bandasProvider.notifier)
+                            .toggleFavorite(banda.id!);
+                      },
+                    ),
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
                       tooltip: 'Editar banda',
@@ -230,6 +252,7 @@ class BandasScreen extends ConsumerWidget {
                                               ? null
                                               : descripcionController.text
                                                   .trim(),
+                                      favoritedBy: banda.favoritedBy,
                                     );
 
                                     ref

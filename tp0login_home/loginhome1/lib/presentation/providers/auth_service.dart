@@ -85,19 +85,27 @@ class AuthService {
   /// -------------------
   Future<void> signOut() async {
     try {
-      await (_googleSignIn as dynamic).disconnect();
-    } catch (_) {
+      // Desconectar Google
       try {
-        await (_googleSignIn as dynamic).signOut();
-      } catch (_) {}
+        await (_googleSignIn as dynamic).disconnect();
+      } catch (_) {
+        try {
+          await (_googleSignIn as dynamic).signOut();
+        } catch (_) {}
+      }
+      
+      // Cerrar sesión en Firebase
+      await _auth.signOut();
+    } catch (e) {
+      print('Error during sign out: $e');
+      rethrow;
     }
-    await _auth.signOut();
   }
 
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   /// -------------------
-  /// Auxiliar para crear usuario en Firestore si no existe
+  /// Crear usuario en Firestore
   /// -------------------
   Future<void> _ensureUserDocument(User user, {bool isNew = false}) async {
     final docRef = _firestore.collection('users').doc(user.uid);
